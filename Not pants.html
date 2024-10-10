@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-Based Combat Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        #game {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .health {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>Text-Based Combat Game</h1>
+        <div id="output"></div>
+        <input type="text" id="input" placeholder="Type your action..." autofocus />
+        <button id="submit">Submit</button>
+    </div>
+    <script>
+        class Character {
+            constructor(name, health, attack) {
+                this.name = name;
+                this.health = health;
+                this.attack = attack;
+            }
+
+            isAlive() {
+                return this.health > 0;
+            }
+
+            takeDamage(damage) {
+                this.health -= damage;
+                return `${this.name} takes ${damage} damage! Health: ${this.health}`;
+            }
+
+            attackEnemy(enemy) {
+                return `${this.name} attacks ${enemy.name} for ${this.attack} damage!<br/>` + enemy.takeDamage(this.attack);
+            }
+
+            getHealthStatus() {
+                return `<div class="health">${this.name} Health: ${this.health}</div>`;
+            }
+        }
+
+        const player = new Character('Hero', 100, 10);
+        const enemy = new Character('Monster', 50, 5);
+
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+        const submit = document.getElementById('submit');
+
+        function updateHealthDisplay() {
+            output.innerHTML += `<br/>${player.getHealthStatus()}`;
+            output.innerHTML += `${enemy.getHealthStatus()}<br/>`;
+        }
+
+        output.innerHTML = 'A wild monster appears!<br/>';
+        updateHealthDisplay();
+
+        submit.addEventListener('click', () => {
+            const action = input.value.toLowerCase();
+            input.value = '';
+            
+            if (action === 'attack') {
+                output.innerHTML += player.attackEnemy(enemy) + '<br/>';
+                updateHealthDisplay();
+
+                if (!enemy.isAlive()) {
+                    output.innerHTML += 'You defeated the enemy!';
+                    input.disabled = true;
+                    return;
+                }
+
+                output.innerHTML += enemy.attackEnemy(player) + '<br/>';
+                updateHealthDisplay();
+
+                if (!player.isAlive()) {
+                    output.innerHTML += 'You have been defeated!';
+                    input.disabled = true;
+                    return;
+                }
+            } else if (action === 'run') {
+                output.innerHTML += 'You ran away!';
+                input.disabled = true;
+            } else {
+                output.innerHTML += 'Invalid choice. Type "attack" or "run".<br/>';
+            }
+            
+            output.scrollTop = output.scrollHeight; // Scroll to the bottom
+        });
+    </script>
+</body>
+</html>
